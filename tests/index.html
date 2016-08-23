@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head></head>
+  <body>
+    <button onclick='onConnect()'>
+      CONNECT
+    </button>
+    <script type="text/javascript">
+      DataView.prototype.getUTF8String = function(offset, length) {
+          var utf16 = new ArrayBuffer(length * 2);
+          var utf16View = new Uint16Array(utf16);
+          for (var i = 0; i < length; ++i) {
+              utf16View[i] = this.getUint8(offset + i);
+          }
+          return String.fromCharCode.apply(null, utf16View);
+      };
+
+      window.RTCPeerConnection = window.webkitRTCPeerConnection || window.RTCPeerConnection
+      var peer = new RTCPeerConnection({'iceServers': [{'url': 'stun:stun.l.google.com:19302'}]},{ optional:[{ RtpDataChannels:true }]});
+
+      function onConnect(){
+        navigator.bluetooth.requestDevice({filters: [{name:'OVERBOARD', services: ['00001815-0000-1000-8000-00805f9b34fb']}]})
+          .then(device => device.gatt.connect())
+          .then(server => server.getPrimaryService('00001815-0000-1000-8000-00805f9b34fb'))
+          .then(service => service.getCharacteristics())
+          .then(chars => {
+            var offerCharacteristic  = chars.filter(char => char.uuid.split('-')[0] === '00001111')[0]
+            var answerCharacteristic = chars.filter(char => char.uuid.split('-')[0] === '00002222')[0]
+
+            answerCharacteristic.startNotifications().then(_ => {
+              function handler(event){
+                myCharacteristic.removeEventListener('characteristicvaluechanged');
+                handlerAnswer(JSON.parse(event.target.data));
+              }
+
+               myCharacteristic.addEventListener('characteristicvaluechanged', handler);
+
+               offerCharacteristic
+                 .writeValue()
+                 .then(buffer => {
+                   console.log(buffer, buffer.getUTF8String(0, buffer.byteLength))
+                 })
+             });
+          })
+      }
+
+      function handlerAnswer(event) {
+        let value = event.target.value;
+      }
+
+      function getOffer(){
+          peer.createOffer()
+            .then(function(offer){
+              peer.setLocalDescription(offer)
+                .then(function(){
+                  return peer.localDescription
+                })
+            })
+      }
+
+      function createChannel(){
+        var channel = peer.createDataChannel('game', {ordered: true, reliable:false});
+        channel.onmessage = receiveDataChannelMessage;
+      }
+
+      function receiveDataChannelMessage(event) {
+        // emitter.emit('gameEvent', JSON.parse(event.data));
+      }
+    </script>
+  </body>
+</html>

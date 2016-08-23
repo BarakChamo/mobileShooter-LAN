@@ -3,7 +3,7 @@ import { Rectangle } from './Shapes'
 import { movable, collidable, kevin, glow } from 'mixins'
 /*
   Bullet
- */ 
+ */
 
 @movable @collidable @kevin({health: WORLD.bullet.damage}) @glow('white', 3)
 export default class Bullet extends Rectangle {

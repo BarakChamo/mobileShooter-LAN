@@ -38,7 +38,7 @@ export default class Drop extends Circle {
       ctx.save()
         ctx.translate(params.x, params.y)
         ctx.rotate(params.rotation)
-        
+
         ctx.beginPath()
           ctx.rect( -params.r * 0.25 , -params.r + params.r * 0.25, params.r * 0.5, params.r * 1.5)
           ctx.rect( -params.r + params.r * 0.25, -params.r * 0.25 , params.r * 1.5, params.r * 0.5)

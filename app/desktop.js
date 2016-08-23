@@ -20,7 +20,7 @@ import clouds from 'graphics/clouds'
 
 /*
   Bootstrap
- */ 
+ */
 
 const ctx      = document.querySelector('#canvas').getContext('2d'),
       cloudCtx = document.querySelector('#clouds').getContext('2d'),
@@ -60,7 +60,7 @@ const gameWorker  = new GameWorker()
 // Initialize game state worker
 gameWorker.onmessage = function(event) {
   switch(event.data.type){
-    case 'render': 
+    case 'render':
       render(event.data.state)
       break
 
@@ -76,7 +76,7 @@ gameWorker.onmessage = function(event) {
 gameWorker.onerror = error => console.log(error)
 
 // Get room or push room state
-let room = (location.pathname.replace('/','') || prompt('WHAT ROOM?!?!')).toLowerCase()
-history.replaceState ? history.replaceState(null, null, room) : location.pathname = room
+let room = 'ROOM'; //(location.pathname.replace('/','') || prompt('WHAT ROOM?!?!')).toLowerCase()
+// history.replaceState ? history.replaceState(null, null, room) : location.pathname = room
 
 gameWorker.postMessage(room)
